@@ -24,6 +24,14 @@ describe('API Endpoints', () => {
     nock.cleanAll();
   });
 
+  test('GET / should serve the index page', async () => {
+    const response = await request(app)
+      .get('/');
+
+    expect(response.statusCode).toBe(200);
+    expect(response.type).toBe('text/html');
+  });
+
   test('POST /fetch should return 400 if URL is missing', async () => {
     const response = await request(app)
       .post('/fetch')
@@ -63,5 +71,35 @@ describe('API Endpoints', () => {
 
     expect(response.statusCode).toBe(500);
     expect(response.body.error).toContain('Failed to fetch content');
+  });
+
+  test('POST /fetch should handle YALE in uppercase', async () => {
+    const htmlWithUppercase = '<html><body><p>YALE is great</p></body></html>';
+    
+    nock('https://test.com')
+      .get('/')
+      .reply(200, htmlWithUppercase);
+
+    const response = await request(app)
+      .post('/fetch')
+      .send({ url: 'https://test.com/' });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.body.content).toContain('FALE is great');
+  });
+
+  test('POST /fetch should handle mixed case yale', async () => {
+    const htmlWithMixed = '<html><body><p>yale university</p></body></html>';
+    
+    nock('https://test2.com')
+      .get('/')
+      .reply(200, htmlWithMixed);
+
+    const response = await request(app)
+      .post('/fetch')
+      .send({ url: 'https://test2.com/' });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.body.content).toContain('fale university');
   });
 });
