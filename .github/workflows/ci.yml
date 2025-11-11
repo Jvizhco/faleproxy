@@ -31,12 +31,11 @@ jobs:
       
     - name: Upload coverage report
       uses: actions/upload-artifact@v4
->>>>>>> ba4f30f (upgraded the deprecated version of)
+      if: always()
       with:
         name: coverage-report-${{ matrix.node-version }}
         path: coverage/
-  
-  # Deploy job - only runs if ALL tests pass on main/master branch
+        
   deploy:
     needs: test
     if: |
