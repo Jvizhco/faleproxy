@@ -102,4 +102,20 @@ describe('API Endpoints', () => {
     expect(response.statusCode).toBe(200);
     expect(response.body.content).toContain('fale university');
   });
+
+  test('POST /fetch should handle HTML with no Yale references', async () => {
+    const htmlNoYale = '<html><head><title>Test</title></head><body><p>Hello World</p><div>Some text</div></body></html>';
+    
+    nock('https://test3.com')
+      .get('/')
+      .reply(200, htmlNoYale);
+
+    const response = await request(app)
+      .post('/fetch')
+      .send({ url: 'https://test3.com/' });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.body.content).toContain('Hello World');
+    expect(response.body.title).toBe('Test');
+  });
 });
