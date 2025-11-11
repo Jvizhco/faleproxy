@@ -31,17 +31,24 @@ jobs:
       
     - name: Upload coverage report
       uses: actions/upload-artifact@v3
+      if: always()
       with:
-        name: coverage-report
+        name: coverage-report-${{ matrix.node-version }}
         path: coverage/
-        
+  
+  # Deploy job - only runs if ALL tests pass on main/master branch
   deploy:
     needs: test
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    if: |
+      success() &&
+      (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
     runs-on: ubuntu-latest
     
     steps:
     - uses: actions/checkout@v3
+    
+    - name: Verify tests passed
+      run: echo "✅ All tests passed. Proceeding with deployment..."
     
     - name: Setup Node.js
       uses: actions/setup-node@v3
