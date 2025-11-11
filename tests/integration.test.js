@@ -5,6 +5,7 @@ const { promisify } = require('util');
 const execAsync = promisify(exec);
 const { sampleHtmlWithYale } = require('./test-utils');
 const nock = require('nock');
+const path = require('path');
 
 // Set a different port for testing to avoid conflict with the main app
 const TEST_PORT = 3099;
@@ -18,11 +19,12 @@ describe('Integration Tests', () => {
     nock.enableNetConnect('127.0.0.1');
     
     // Create a temporary test app file
-    await execAsync('cp app.js app.test.js');
-    await execAsync(`sed -i '' 's/const PORT = 3001/const PORT = ${TEST_PORT}/' app.test.js`);
+    await execAsync('cp app.js app.test.js', { cwd: __dirname + '/..' });
+    await execAsync(`sed -i '' 's/const PORT = 3001/const PORT = ${TEST_PORT}/' app.test.js`, { cwd: __dirname + '/..' });
     
     // Start the test server
     server = require('child_process').spawn('node', ['app.test.js'], {
+      cwd: path.join(__dirname, '..'),
       detached: true,
       stdio: 'ignore'
     });
@@ -36,7 +38,7 @@ describe('Integration Tests', () => {
     if (server && server.pid) {
       process.kill(-server.pid);
     }
-    await execAsync('rm app.test.js');
+    await execAsync('rm app.test.js', { cwd: __dirname + '/..' });
     nock.cleanAll();
     nock.enableNetConnect();
   });
