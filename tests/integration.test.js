@@ -16,7 +16,7 @@ describe('Integration Tests', () => {
   beforeAll(async () => {
     // Mock external HTTP requests
     nock.disableNetConnect();
-    nock.enableNetConnect('127.0.0.1');
+    nock.enableNetConnect('localhost');
     
     // Create a temporary test app file
     await execAsync('cp app.js app.test.js', { cwd: path.join(__dirname, '..') });
@@ -105,7 +105,12 @@ describe('Integration Tests', () => {
       // Should not reach here
       expect(true).toBe(false);
     } catch (error) {
-      expect(error.response.status).toBe(500);
+      if (error.response) {
+        expect(error.response.status).toBe(500);
+      } else {
+        // Network error - server might not be ready
+        throw error;
+      }
     }
   });
 
@@ -115,8 +120,13 @@ describe('Integration Tests', () => {
       // Should not reach here
       expect(true).toBe(false);
     } catch (error) {
-      expect(error.response.status).toBe(400);
-      expect(error.response.data.error).toBe('URL is required');
+      if (error.response) {
+        expect(error.response.status).toBe(400);
+        expect(error.response.data.error).toBe('URL is required');
+      } else {
+        // Network error - server might not be ready
+        throw error;
+      }
     }
   });
 });
