@@ -33,14 +33,33 @@ describe('Integration Tests', () => {
     await new Promise(resolve => setTimeout(resolve, 2000));
   }, 10000); // Increase timeout for server startup
 
+  afterEach(() => {
+    // Clean up nock after each test
+    nock.cleanAll();
+  });
+
   afterAll(async () => {
-    // Kill the test server and clean up
-    if (server && server.pid) {
-      process.kill(-server.pid);
-    }
-    await execAsync('rm app.test.js', { cwd: path.join(__dirname, '..') });
+    // Clean up nock first
     nock.cleanAll();
     nock.enableNetConnect();
+    
+    // Kill the test server and clean up
+    if (server && server.pid) {
+      try {
+        process.kill(-server.pid);
+      } catch (err) {
+        // Process might already be dead
+      }
+    }
+    
+    // Wait a bit for the server to shut down
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    try {
+      await execAsync('rm -f app.test.js', { cwd: path.join(__dirname, '..') });
+    } catch (err) {
+      // File might not exist
+    }
   });
 
   test('Should replace Yale with Fale in fetched content', async () => {
