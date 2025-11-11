@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         
         const url = urlInput.value.trim();
-        
+        //testing preview
         if (!url) {
             showError('Please enter a valid URL');
             return;
