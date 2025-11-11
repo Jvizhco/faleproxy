@@ -19,8 +19,8 @@ describe('Integration Tests', () => {
     nock.enableNetConnect('127.0.0.1');
     
     // Create a temporary test app file
-    await execAsync('cp app.js app.test.js', { cwd: __dirname + '/..' });
-    await execAsync(`sed -i '' 's/const PORT = 3001/const PORT = ${TEST_PORT}/' app.test.js`, { cwd: __dirname + '/..' });
+    await execAsync('cp app.js app.test.js', { cwd: path.join(__dirname, '..') });
+    await execAsync(`perl -pi -e 's/const PORT = 3001/const PORT = ${TEST_PORT}/' app.test.js`, { cwd: path.join(__dirname, '..') });
     
     // Start the test server
     server = require('child_process').spawn('node', ['app.test.js'], {
@@ -38,7 +38,7 @@ describe('Integration Tests', () => {
     if (server && server.pid) {
       process.kill(-server.pid);
     }
-    await execAsync('rm app.test.js', { cwd: __dirname + '/..' });
+    await execAsync('rm app.test.js', { cwd: path.join(__dirname, '..') });
     nock.cleanAll();
     nock.enableNetConnect();
   });
