@@ -30,8 +30,8 @@ jobs:
       run: npm run test:ci
       
     - name: Upload coverage report
-      uses: actions/upload-artifact@v3
-      if: always()
+      uses: actions/upload-artifact@v4
+>>>>>>> ba4f30f (upgraded the deprecated version of)
       with:
         name: coverage-report-${{ matrix.node-version }}
         path: coverage/
